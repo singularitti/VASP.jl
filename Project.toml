@@ -7,8 +7,10 @@ authors = ["singularitti <singularitti@outlook.com>"]
 projects = ["test", "docs"]
 
 [deps]
+Glob = "c27321d9-0574-5035-807b-f59d2c89b15c"
 PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"
 
 [compat]
+Glob = "1.4.0"
 PythonCall = "0.9.31"
 julia = "1.10"
