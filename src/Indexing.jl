@@ -3,7 +3,7 @@
 using DataFrames: DataFrame, Not, select, nrow, groupby
 using PythonCall: pyimport, pyconvert
 
-export EnergyParser, MagnetizationFile, MagnetizationParser, index, groupby_file
+export EnergyParser, MagnetizationFile, MagnetizationParser, groupby_file
 
 const _PYMODULE_CACHE = Dict{String,Any}()  # Cache mapping module name -> PyObject
 const _PYMODULE_CACHE_LOCK = ReentrantLock()  # Lock to make cache access thread-safe
@@ -36,12 +36,12 @@ struct EnergyParser <: Indexer end
 end
 struct MagnetizationParser{T} <: Indexer end
 
-function index(file, ::EnergyParser)
+function (::EnergyParser)(file)
     mod = lazy_pyimport("pymatgen.io.vasp")
     outcar = mod.Outcar(file)
     return pyconvert(Float64, outcar.final_fr_energy)
 end
-function index(file, ::MagnetizationParser{V}) where {V}
+function (::MagnetizationParser{V})(file) where {V}
     mod = lazy_pyimport("pymatgen.io.vasp")
     outcar = mod.Outcar(file)
     if V == MagnetizationFile.OUTCAR
