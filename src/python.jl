@@ -1,4 +1,5 @@
-using PythonCall: pyimport
+using DataFrames: DataFrame
+using PythonCall: pyimport, pyconvert
 
 const _PYMODULE_CACHE = Dict{String,Any}()  # Cache mapping module name -> PyObject
 const _PYMODULE_CACHE_LOCK = ReentrantLock()  # Lock to make cache access thread-safe
@@ -20,3 +21,5 @@ function lazy_pyimport(modname::AbstractString)
     end
     return m
 end
+
+pydicts_to_dataframe(dicts) = DataFrame(map(Base.Fix1(pyconvert, Dict), dicts))

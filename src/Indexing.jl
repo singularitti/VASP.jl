@@ -24,7 +24,7 @@ function (::MagnetizationParser{V})(file) where {V}
     mod = lazy_pyimport("pymatgen.io.vasp")
     outcar = mod.Outcar(file)
     if V == MagnetizationFile.OUTCAR
-        df = DataFrame(map(Base.Fix1(pyconvert, Dict), outcar.magnetization))
+        df = pydicts_to_dataframe(outcar.magnetization)
         return select(df, Not(:tot))
     elseif V == MagnetizationFile.OSZICAR
         oszicar = mod.Oszicar(file)
