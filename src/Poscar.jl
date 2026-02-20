@@ -1,5 +1,4 @@
 using CrystallographyBase: Cell, Lattice
-using PythonCall: Py, pyconvert_unconverted, pyconvert_return
 
 export CifParser, PoscarParser, ElementExtractor, ElementCounter, LatticeExtractor
 
