@@ -1,5 +1,4 @@
 using CrystallographyBase: Cell
-using OrderedCollections: LittleDict
 
 struct PotcarGenerator{T,S}
     potentials_dir::T

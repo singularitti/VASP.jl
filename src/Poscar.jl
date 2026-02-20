@@ -1,10 +1,12 @@
 using CrystallographyBase: Cell, Lattice
 using PythonCall: Py, pyconvert_unconverted, pyconvert_return
 
-export CifParser, PoscarParser
+export CifParser, PoscarParser, ElementExtractor, ElementCounter
 
 struct CifParser <: Indexer end
 struct PoscarParser <: Indexer end
+struct ElementExtractor <: Indexer end
+struct ElementCounter <: Indexer end
 
 function (::CifParser)(file)
     mod = lazy_pyimport("pymatgen.io.cif")
@@ -15,6 +17,18 @@ function (::PoscarParser)(file)
     mod = lazy_pyimport("pymatgen.io.vasp")
     poscar = mod.Poscar.from_str(read(file, String))
     return poscar.structure
+end
+function (::ElementExtractor)(file)
+    mod = lazy_pyimport("pymatgen.io.vasp")
+    poscar = mod.Poscar.from_str(read(file, String))
+    cell = pyconvert(Cell, poscar.structure)
+    return unique(cell.atoms)
+end
+function (::ElementCounter)(file)
+    mod = lazy_pyimport("pymatgen.io.vasp")
+    poscar = mod.Poscar.from_str(read(file, String))
+    cell = pyconvert(Cell, poscar.structure)
+    return counter(cell.atoms)
 end
 
 function _structure2cell(::Type{<:Cell}, structure::Py)
@@ -31,4 +45,12 @@ function _structure2cell(::Type{<:Cell}, structure::Py)
         push!(atoms, pyconvert(String, site.species_string))
     end
     return pyconvert_return(Cell(lattice, positions, atoms))
+end
+
+function counter(iter)
+    d = LittleDict{eltype(iter),Int}()
+    for x in iter
+        d[x] = get(d, x, 0) + 1
+    end
+    return d
 end

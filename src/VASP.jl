@@ -1,5 +1,7 @@
 module VASP
 
+using OrderedCollections: LittleDict
+
 include("python.jl")
 include("WorkDir.jl")
 include("process.jl")
