@@ -9,6 +9,7 @@ include("WorkStatus.jl")
 include("Indexing.jl")
 include("Poscar.jl")
 include("Potcar.jl")
+include("magnetization.jl")
 include("__init__.jl")
 
 end
