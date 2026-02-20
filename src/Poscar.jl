@@ -3,11 +3,11 @@ using PythonCall: Py, pyconvert_unconverted, pyconvert_return
 
 export CifParser, PoscarParser, ElementExtractor, ElementCounter, LatticeExtractor
 
-struct CifParser <: Indexer end
-struct PoscarParser <: Indexer end
-struct ElementExtractor <: Indexer end
-struct ElementCounter <: Indexer end
-struct LatticeExtractor <: Indexer end
+struct CifParser <: Parser end
+struct PoscarParser <: Parser end
+struct ElementExtractor <: Processor end
+struct ElementCounter <: Processor end
+struct LatticeExtractor <: Processor end
 
 function (::CifParser)(file)
     mod = lazy_pyimport("pymatgen.io.cif")

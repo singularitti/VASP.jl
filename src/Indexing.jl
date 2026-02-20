@@ -8,6 +8,8 @@ export EnergyParser, MagnetizationFile, MagnetizationParser, groupby_file
 abstract type Indexer end
 
 struct EnergyParser <: Indexer end
+abstract type Parser <: Indexer end
+abstract type Processor <: Indexer end
 
 @enumx MagnetizationFile::UInt8 begin
     OUTCAR

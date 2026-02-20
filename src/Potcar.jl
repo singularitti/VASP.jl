@@ -1,5 +1,3 @@
-using CrystallographyBase: Cell
-
 struct PotcarGenerator{T,S}
     potentials_dir::T
     pot_database::Dict{S,T}
