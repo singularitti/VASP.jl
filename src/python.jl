@@ -1,4 +1,3 @@
-using DataFrames: DataFrame
 using PythonCall:
     Py,
     pyimport,
@@ -27,16 +26,4 @@ function lazy_pyimport(modname::AbstractString)
         end
     end
     return m
-end
-
-function _pydicts2dataframe(::Type{DataFrame}, dicts::Py)
-    # Verify elements are dict-like before attempting conversion, so we can cleanly reject.
-    for item in dicts
-        if !pyisinstance(item, pybuiltins.dict)
-            return pyconvert_unconverted()
-        end
-    end
-    # Convert: list/tuple of dicts -> Vector{Dict} -> DataFrame
-    df = DataFrame(map(Base.Fix1(pyconvert, Dict), dicts))
-    return pyconvert_return(convert(DataFrame, df))
 end

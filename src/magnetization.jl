@@ -1,3 +1,5 @@
+using DataFrames: DataFrame, Not, select, nrow, groupby
+
 export MagnetizationFile, MagnetizationParser, groupby_file
 
 @enumx MagnetizationFile::UInt8 begin
@@ -50,4 +52,16 @@ Convenience wrapper: `groupby(concat_with_file(...), :file)`.
 """
 function groupby_file(dfs, files, copydfs=false)
     return groupby(concat_with_file(dfs, files, copydfs), :file)
+end
+
+function _pydicts2dataframe(::Type{DataFrame}, dicts::Py)
+    # Verify elements are dict-like before attempting conversion, so we can cleanly reject.
+    for item in dicts
+        if !pyisinstance(item, pybuiltins.dict)
+            return pyconvert_unconverted()
+        end
+    end
+    # Convert: list/tuple of dicts -> Vector{Dict} -> DataFrame
+    df = DataFrame(map(Base.Fix1(pyconvert, Dict), dicts))
+    return pyconvert_return(convert(DataFrame, df))
 end
