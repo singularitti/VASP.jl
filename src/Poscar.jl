@@ -19,18 +19,9 @@ function (::PoscarParser)(file)
     cell = pyconvert(Cell, poscar.structure)
     return cell
 end
-function (::ElementExtractor)(file)
-    cell = PoscarParser()(file)
-    return unique(cell.atoms)
-end
-function (::ElementCounter)(file)
-    cell = PoscarParser()(file)
-    return counter(cell.atoms)
-end
-function (::LatticeExtractor)(file)
-    cell = PoscarParser()(file)
-    return cell.lattice
-end
+(::ElementExtractor)(cell::Cell) = unique(cell.atoms)
+(::ElementCounter)(cell::Cell) = counter(cell.atoms)
+(::LatticeExtractor)(cell::Cell) = cell.lattice
 
 function _structure2cell(::Type{<:Cell}, structure::Py)
     is_ordered = pyconvert(Bool, structure.is_ordered)
