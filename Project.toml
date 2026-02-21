@@ -16,6 +16,7 @@ OrderedCollections = "bac558e1-5e72-5ebc-8fee-abe8a469f55d"
 PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"
 
 [compat]
+CrystallographyBase = "0.14.3"
 DataFrames = "1.8.1"
 EnumX = "1.0.6"
 FileTrees = "0.3.10"
