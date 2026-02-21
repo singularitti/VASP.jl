@@ -1,6 +1,6 @@
-using FileTrees: FileTree, filter, path, name
+using FileTrees: FileTree, filter, path, name, load
 
-export walk_workdirs, list_files
+export walk_workdirs, list_files, lazyload
 
 function walk_workdirs(root)
     tree = FileTree(root)
@@ -13,5 +13,11 @@ end
 function list_files(tree::FileTree, pattern)
     return filter(tree; dirs=false) do node
         node isa FileTree ? false : pattern == name(node)
+    end
+end
+
+function lazyload(tree::FileTree, indexer::Indexer)
+    return load(tree; lazy=true) do file
+        indexer(path(file))
     end
 end
