@@ -1,6 +1,5 @@
 # module Indexing
 
-using DataFrames: DataFrame, Not, select, nrow, groupby
 using PythonCall: pyconvert
 
 export EnergyParser
