@@ -41,6 +41,6 @@ function (gen::PotcarValidator)(potcar_file, poscar_file)
     poscar = PoscarParser()(poscar_file)
     symbols_from_poscar = ElementExtractor()(poscar)
     potcar = mod.Potcar.from_file(potcar_file)
-    symbols_from_potcar = potcar.symbols
+    symbols_from_potcar = pyconvert(Vector{String}, potcar.symbols)
     return symbols_from_poscar == symbols_from_potcar
 end
