@@ -1,3 +1,5 @@
+export PotcarGenerator, PotcarValidator
+
 struct PotcarGenerator{T,S}
     potentials_dir::T
     pot_database::Dict{S,T}
@@ -30,4 +32,15 @@ function (gen::PotcarGenerator)(file, cell::Cell)
     open(file, "w") do io
         write(io, content)
     end
+end
+
+struct PotcarValidator end
+
+function (gen::PotcarValidator)(potcar_file, poscar_file)
+    mod = lazy_pyimport("pymatgen.io.vasp")
+    poscar = PoscarParser()(poscar_file)
+    symbols_from_poscar = ElementExtractor()(poscar)
+    potcar = mod.Potcar.from_file(potcar_file)
+    symbols_from_potcar = potcar.symbols
+    return symbols_from_poscar == symbols_from_potcar
 end
