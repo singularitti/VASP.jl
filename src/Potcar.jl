@@ -22,7 +22,7 @@ function concat_potcars(gen::PotcarGenerator, elements)
 end
 
 function (gen::PotcarGenerator)(cell::Cell)
-    elements = extract_elements(cell)  # Implement separately
+    elements = ElementExtractor()(cell)  # Implement separately
     return concat_potcars(gen, elements)
 end
 function (gen::PotcarGenerator)(file, cell::Cell)
