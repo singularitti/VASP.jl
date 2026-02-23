@@ -28,22 +28,20 @@ function TemplateDistributor(src_files)
 end
 
 """
-    (td::TemplateDistributor)(start_dir; overwrite=false)
+    (distributor::TemplateDistributor)(start_dir; overwrite=false)
 
 Copy source files to all VASP working directories found under `start_dir`.
 """
-function (td::TemplateDistributor)(start_dir; overwrite=false)
+function (distributor::TemplateDistributor)(start_dir; overwrite=false)
     finder = WorkdirFinder()
     workdirs = find(finder, start_dir)
-
     successful_dirs = OrderedSet{typeof(first(workdirs))}()
     if isempty(workdirs)
         return successful_dirs
     end
-
     for workdir in workdirs
         copied_files = false
-        for src_file in td.src_files
+        for src_file in distributor.src_files
             dest_file = joinpath(workdir, basename(src_file))
             try
                 if isfile(dest_file) && !overwrite
@@ -77,14 +75,14 @@ Represent a template file, supporting Mustache rendering and modification of tar
 end
 
 """
-    render(tm::TemplateModifier, variables)
+    render(modifier::TemplateModifier, variables)
 
 Render the template with provided variables and handle file content.
 """
-function render(tm::TemplateModifier, variables)
-    target_path = joinpath(tm.target_dir, tm.target_file)
-    rendered = Mustache.render(tm.template, variables)
-    if tm.append_mode && isfile(target_path)
+function render(modifier::TemplateModifier, variables)
+    target_path = joinpath(modifier.target_dir, modifier.target_file)
+    rendered = Mustache.render(modifier.template, variables)
+    if modifier.append_mode && isfile(target_path)
         existing = read(target_path, String)
         return existing * "\n" * rendered
     end
@@ -92,13 +90,13 @@ function render(tm::TemplateModifier, variables)
 end
 
 """
-    modify(tm::TemplateModifier, final_content)
+    modify(modifier::TemplateModifier, final_content)
 
 Write the final content to the target file in the given directory.
 """
-function modify(tm::TemplateModifier, final_content)
-    target_path = joinpath(tm.target_dir, tm.target_file)
-    if !tm.append_mode && isfile(target_path)  # Overwrite mode
+function modify(modifier::TemplateModifier, final_content)
+    target_path = joinpath(modifier.target_dir, modifier.target_file)
+    if !modifier.append_mode && isfile(target_path)  # Overwrite mode
         try
             lines = readlines(target_path; keep=true)
             num_lines = length(lines)
@@ -112,7 +110,7 @@ function modify(tm::TemplateModifier, final_content)
     end
     try
         write(target_path, final_content)
-        if tm.append_mode
+        if modifier.append_mode
             @info "Appended rendered template to '$target_path'."
         else
             @warn "Overwrote '$target_path' with rendered template"
@@ -125,27 +123,28 @@ function modify(tm::TemplateModifier, final_content)
 end
 
 """
-    render_modify(tm::TemplateModifier, variables)
+    render_modify(modifier::TemplateModifier, variables)
 
 Render the template with provided variables and modify the target file in the given directory.
 """
-render_modify(tm::TemplateModifier, variables) = modify(tm, render(tm, variables))
+render_modify(modifier::TemplateModifier, variables) =
+    modify(modifier, render(modifier, variables))
 
 """
-    patch(tm::TemplateModifier, patch_path=nothing)
+    patch(modifier::TemplateModifier, patch_path=nothing)
 
 Apply a unified diff patch to the target file in the given directory.
 """
-function patch(tm::TemplateModifier, patch_path=nothing)
+function patch(modifier::TemplateModifier, patch_path=nothing)
     if Sys.which("patch") === nothing
         @error "`patch` command not found in PATH."
         return false
     end
-    target_path = joinpath(tm.target_dir, tm.target_file)
+    target_path = joinpath(modifier.target_dir, modifier.target_file)
     temp_patch = nothing
     if patch_path === nothing
         temp_patch_path, io = mktemp()
-        write(io, tm.template)
+        write(io, modifier.template)
         close(io)
         patch_path = temp_patch_path
         temp_patch = temp_patch_path
