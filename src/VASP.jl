@@ -5,6 +5,7 @@ using OrderedCollections: LittleDict
 include("python.jl")
 include("WorkDir.jl")
 include("types.jl")
+include("templating.jl")
 include("Indexing.jl")
 include("process.jl")
 include("WorkStatus.jl")
