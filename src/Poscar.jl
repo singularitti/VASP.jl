@@ -1,6 +1,12 @@
 using CrystallographyBase: Cell, Lattice
 
-export CifParser, PoscarParser, ElementExtractor, ElementCounter, LatticeExtractor
+export Poscar, CifParser, PoscarParser, ElementExtractor, ElementCounter, LatticeExtractor
+
+struct Poscar{C<:Cell} <: Input
+    cell::C
+    comment::String
+    selective_dynamics::Bool
+end
 
 struct CifParser <: Parser end
 struct PoscarParser <: Parser end
