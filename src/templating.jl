@@ -28,13 +28,12 @@ function TemplateDistributor(src_files)
 end
 
 """
-    (distributor::TemplateDistributor)(start_dir; overwrite=false)
+    (distributor::TemplateDistributor)(start_dir, overwrite=false)
 
 Copy source files to all VASP working directories found under `start_dir`.
 """
-function (distributor::TemplateDistributor)(start_dir; overwrite=false)
-    finder = WorkdirFinder()
-    workdirs = find(finder, start_dir)
+function (distributor::TemplateDistributor)(start_dir, overwrite=false)
+    workdirs = list_workdirs(start_dir)
     successful_dirs = OrderedSet{typeof(first(workdirs))}()
     if isempty(workdirs)
         return successful_dirs
