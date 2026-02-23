@@ -1,6 +1,6 @@
-using FileTrees: FileTree, filter, path, name, load
+using FileTrees: FileTree, filter, path, dirs, name, load
 
-export walk_workdirs, list_files, lazyload
+export walk_workdirs, list_workdirs, list_files, lazyload
 
 function walk_workdirs(root)
     tree = FileTree(root)
@@ -8,6 +8,11 @@ function walk_workdirs(root)
         # Must compare the node to the tree itself, otherwise we will exclude the root directory
         node isa FileTree ? (node == tree || isvalid(WorkDir(path(node)))) : true
     end
+end
+
+function list_workdirs(root)
+    tree = walk_workdirs(root)
+    return map(path, filter(!=(tree), dirs(tree)))
 end
 
 function list_files(tree::FileTree, pattern)
