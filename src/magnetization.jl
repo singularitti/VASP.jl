@@ -1,23 +1,19 @@
 using DataFrames: DataFrame, Not, select, nrow, groupby
 
-export MagnetizationFile, MagnetizationParser, groupby_file
+export MagnetizationParser, groupby_file
 
-@enumx MagnetizationFile::UInt8 begin
-    OUTCAR
-    OSZICAR
-end
 struct MagnetizationParser{T} <: Indexer end
-function (::MagnetizationParser{V})(file) where {V}
+function (::MagnetizationParser{T})(file) where {T}
     mod = lazy_pyimport("pymatgen.io.vasp")
-    outcar = mod.Outcar(file)
-    if V == MagnetizationFile.OUTCAR
+    if T <: Outcar
+        outcar = mod.Outcar(file)
         df = pyconvert(DataFrame, outcar.magnetization)
         return select(df, Not(:tot))
-    elseif V == MagnetizationFile.OSZICAR
+    elseif T <: Oszicar
         oszicar = mod.Oszicar(file)
         return DataFrame(oszicar.ionic_steps).mag
     else
-        throw(ArgumentError("Unsupported magnetization file type: $V"))
+        throw(ArgumentError("Unsupported magnetization file type: $T"))
     end
 end
 
