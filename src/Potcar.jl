@@ -1,5 +1,7 @@
 export PotcarGenerator, PotcarValidator
 
+struct Potcar <: Input end
+
 struct PotcarGenerator{T,S}
     potentials_dir::T
     pot_database::Dict{S,T}
