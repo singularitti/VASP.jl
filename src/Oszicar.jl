@@ -1,0 +1,1 @@
+struct Oszicar <: Input end

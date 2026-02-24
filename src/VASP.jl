@@ -11,6 +11,7 @@ include("process.jl")
 include("WorkStatus.jl")
 include("Poscar.jl")
 include("Potcar.jl")
+include("Oszicar.jl")
 include("magnetization.jl")
 include("__init__.jl")
 
