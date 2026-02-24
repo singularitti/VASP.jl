@@ -1,0 +1,1 @@
+struct Outcar <: Input end
