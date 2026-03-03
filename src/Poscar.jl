@@ -1,4 +1,4 @@
-using CrystallographyBase: Cell, Lattice
+using Crystallography: Cell, Lattice
 
 export Poscar, CifParser, PoscarParser, ElementExtractor, ElementCounter, LatticeExtractor
 
