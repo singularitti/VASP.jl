@@ -38,7 +38,7 @@ end
 
 struct PotcarValidator end
 
-function (gen::PotcarValidator)(potcar_file, poscar_file)
+function (::PotcarValidator)(potcar_file, poscar_file)
     mod = lazy_pyimport("pymatgen.io.vasp")
     poscar = PoscarParser()(poscar_file)
     symbols_from_poscar = ElementExtractor()(poscar)
