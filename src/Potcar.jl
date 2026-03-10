@@ -1,4 +1,4 @@
-export PotcarGenerator, PotcarValidator
+export PotcarGenerator, PotcarValidator, PotcarSpecParser
 
 struct Potcar <: Input end
 
@@ -34,6 +34,25 @@ function (gen::PotcarGenerator)(file, cell::Cell)
     open(file, "w") do io
         write(io, content)
     end
+end
+
+struct PotcarSpecParser <: Parser end
+
+function (::PotcarSpecParser)(file)
+    # Read a `POTCAR.spec` file and map each element to its full line
+    lines = readlines(file)
+    d = Dict{String,String}()
+    for raw in lines
+        line = strip(raw)
+        isempty(line) && continue
+        # Element is the leading sequence of ASCII letters
+        m = match(r"^([A-Za-z]+)", line)
+        if m !== nothing
+            element = m.captures[1]
+            d[element] = line
+        end
+    end
+    return d
 end
 
 struct PotcarValidator end
