@@ -64,13 +64,18 @@ end
 """
     TemplateModifier
 
-Represent a template file, supporting Mustache rendering and modification of target files in append or overwrite modes.
+Represent a template file, supporting Mustache rendering and modification of a single
+`target_path` in append or overwrite modes.
 """
-@kwdef mutable struct TemplateModifier{S,T,D}
+@kwdef mutable struct TemplateModifier{S,T}
     template::S
-    target_file::T
-    target_dir::D
+    target_path::T
     append_mode::Bool = false
+end
+function TemplateModifier(template, target_path, append_mode=false)
+    return TemplateModifier{typeof(template),typeof(target_path)}(
+        template, expanduser(target_path), append_mode
+    )
 end
 
 """
@@ -79,7 +84,7 @@ end
 Render the template with provided variables and handle file content.
 """
 function render(modifier::TemplateModifier, variables)
-    target_path = joinpath(modifier.target_dir, modifier.target_file)
+    target_path = abspath(modifier.target_path)
     rendered = Mustache.render(modifier.template, variables)
     if modifier.append_mode && isfile(target_path)
         existing = read(target_path, String)
@@ -94,7 +99,7 @@ end
 Write the final content to the target file in the given directory.
 """
 function modify(modifier::TemplateModifier, final_content)
-    target_path = joinpath(modifier.target_dir, modifier.target_file)
+    target_path = abspath(modifier.target_path)
     if !modifier.append_mode && isfile(target_path)  # Overwrite mode
         try
             lines = readlines(target_path; keep=true)
@@ -139,7 +144,7 @@ function patch(modifier::TemplateModifier, patch_path=nothing)
         @error "`patch` command not found in PATH."
         return false
     end
-    target_path = joinpath(modifier.target_dir, modifier.target_file)
+    target_path = abspath(modifier.target_path)
     temp_patch = nothing
     if patch_path === nothing
         temp_patch_path, io = mktemp()
