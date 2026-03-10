@@ -1,3 +1,6 @@
+using FileTrees: FileTrees, File, mapsubtrees
+using Glob: @glob_str
+
 export PotcarGenerator, PotcarValidator, PotcarSpecParser
 
 struct Potcar <: Input end
@@ -35,6 +38,13 @@ function (gen::PotcarGenerator)(file, cell::Cell)
         write(io, content)
     end
 end
+(gen::PotcarGenerator)(file::File, cell::Cell) = gen(path(file), cell)
+function (gen::PotcarGenerator)(file_tree::FileTree, cell_tree::FileTree)
+    files, cells = FileTrees.files(file_tree), values(cell_tree)
+    return map(zip(files, cells)) do (file, cell)
+        gen(file, cell)
+    end
+end
 
 struct PotcarSpecParser <: Parser end
 
@@ -53,6 +63,12 @@ function (::PotcarSpecParser)(file)
         end
     end
     return d
+end
+(parser::PotcarSpecParser)(file::File) = parser(path(file))
+function (parser::PotcarSpecParser)(specfile_tree::FileTree)
+    return mapsubtrees(specfile_tree, glob"*/POTCAR.spec") do file
+        parser(file)
+    end
 end
 
 struct PotcarValidator end
