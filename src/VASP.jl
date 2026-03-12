@@ -13,6 +13,7 @@ include("Outcar.jl")
 include("Poscar.jl")
 include("Potcar.jl")
 include("Oszicar.jl")
+include("stopcar.jl")
 include("magnetization.jl")
 include("__init__.jl")
 
