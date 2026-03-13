@@ -1,5 +1,5 @@
 using Crystallography: MagneticAtom, natoms
-using DataFrames: ByRow, DataFrame, Not, select, nrow, groupby
+using DataFrames: ByRow, DataFrame, Not, eachrow, select, nrow, groupby
 
 export MagnetizationParser, groupby_file, magnetic_cell
 
@@ -10,9 +10,10 @@ function (::MagnetizationParser)(file)
     df = pyconvert(DataFrame, outcar.magnetization)
     return select(df, Not(:tot))
 end
-function (::MagnetizationParser)(poscar_file, outcar_file)
+function (parser::MagnetizationParser)(workdir::WorkDir)
+    poscar_file = joinpath(workdir.path, "POSCAR")
+    outcar_file = joinpath(workdir.path, "OUTCAR")
     cell = PoscarParser()(poscar_file)
-    parser = MagnetizationParser()
     dataframe = parser(outcar_file)
     magmoms = ByRow(sum)(eachrow(dataframe))
     return magnetic_cell(cell, magmoms)
