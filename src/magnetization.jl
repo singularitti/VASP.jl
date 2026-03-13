@@ -3,19 +3,16 @@ using DataFrames: ByRow, DataFrame, Not, select, nrow, groupby
 
 export MagnetizationParser, groupby_file, magnetic_cell
 
-struct MagnetizationParser{T} <: Indexer end
-function (::MagnetizationParser{T})(file) where {T}
+struct MagnetizationParser <: Indexer end
+function (::MagnetizationParser)(file)
     mod = lazy_pyimport("pymatgen.io.vasp")
-    if T <: Outcar
-        outcar = mod.Outcar(file)
-        df = pyconvert(DataFrame, outcar.magnetization)
-        return select(df, Not(:tot))
-    elseif T <: Oszicar
-        oszicar = mod.Oszicar(file)
-        return DataFrame(oszicar.ionic_steps).mag
-    else
-        throw(ArgumentError("Unsupported magnetization file type: $T"))
-    end
+    outcar = mod.Outcar(file)
+    df = pyconvert(DataFrame, outcar.magnetization)
+    return select(df, Not(:tot))
+end
+function (::MagnetizationParser)(poscar_file, outcar_file)
+    cell = PoscarParser()(poscar_file)
+    return magnetic_cell(cell, outcar_file)
 end
 
 function magnetic_cell(cell::Cell, magmoms::AbstractArray)
@@ -25,7 +22,7 @@ function magnetic_cell(cell::Cell, magmoms::AbstractArray)
     return Cell(Lattice(cell), cell.positions, MagneticAtom.(cell.atoms, magmoms))
 end
 function magnetic_cell(cell::Cell, outcar_file)
-    parser = MagnetizationParser{Outcar}()
+    parser = MagnetizationParser()
     dataframe = parser(outcar_file)
     magmoms = ByRow(sum)(eachrow(dataframe))
     return magnetic_cell(cell, magmoms)
