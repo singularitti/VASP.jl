@@ -12,7 +12,10 @@ function (::MagnetizationParser)(file)
 end
 function (::MagnetizationParser)(poscar_file, outcar_file)
     cell = PoscarParser()(poscar_file)
-    return magnetic_cell(cell, outcar_file)
+    parser = MagnetizationParser()
+    dataframe = parser(outcar_file)
+    magmoms = ByRow(sum)(eachrow(dataframe))
+    return magnetic_cell(cell, magmoms)
 end
 
 function magnetic_cell(cell::Cell, magmoms::AbstractArray)
@@ -20,12 +23,6 @@ function magnetic_cell(cell::Cell, magmoms::AbstractArray)
         throw(DimensionMismatch("number of magmoms must match number of atoms in cell!"))
     end
     return Cell(Lattice(cell), cell.positions, MagneticAtom.(cell.atoms, magmoms))
-end
-function magnetic_cell(cell::Cell, outcar_file)
-    parser = MagnetizationParser()
-    dataframe = parser(outcar_file)
-    magmoms = ByRow(sum)(eachrow(dataframe))
-    return magnetic_cell(cell, magmoms)
 end
 
 """
