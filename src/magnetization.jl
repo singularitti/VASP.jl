@@ -1,6 +1,7 @@
-using DataFrames: DataFrame, Not, select, nrow, groupby
+using Crystallography: MagneticAtom, natoms
+using DataFrames: ByRow, DataFrame, Not, select, nrow, groupby
 
-export MagnetizationParser, groupby_file
+export MagnetizationParser, groupby_file, magnetic_cell
 
 struct MagnetizationParser{T} <: Indexer end
 function (::MagnetizationParser{T})(file) where {T}
@@ -15,6 +16,19 @@ function (::MagnetizationParser{T})(file) where {T}
     else
         throw(ArgumentError("Unsupported magnetization file type: $T"))
     end
+end
+
+function magnetic_cell(cell::Cell, magmoms::AbstractArray)
+    if length(magmoms) != natoms(cell)
+        throw(DimensionMismatch("number of magmoms must match number of atoms in cell!"))
+    end
+    return Cell(Lattice(cell), cell.positions, MagneticAtom.(cell.atoms, magmoms))
+end
+function magnetic_cell(cell::Cell, outcar_file)
+    parser = MagnetizationParser{Outcar}()
+    dataframe = parser(outcar_file)
+    magmoms = ByRow(sum)(eachrow(dataframe))
+    return magnetic_cell(cell, magmoms)
 end
 
 """
