@@ -1,7 +1,7 @@
-using Crystallography: MagneticAtom, natoms
+using Crystallography: MagneticAtom, MagneticCell, natoms
 using DataFrames: ByRow, DataFrame, Not, eachrow, select, nrow, groupby
 
-export MagnetizationParser, groupby_file, magnetic_cell
+export MagnetizationParser, groupby_file, append_magmoms
 
 struct MagnetizationParser <: Indexer end
 function (::MagnetizationParser)(file)
@@ -16,15 +16,17 @@ function (parser::MagnetizationParser)(workdir::WorkDir)
     cell = PoscarParser()(poscar_file)
     dataframe = parser(outcar_file)
     magmoms = ByRow(sum)(eachrow(dataframe))
-    return magnetic_cell(cell, magmoms)
+    return append_magmoms(cell, magmoms)
 end
 
-function magnetic_cell(cell::Cell, magmoms::AbstractArray)
+function append_magmoms(cell::Cell, magmoms::AbstractArray)
     if length(magmoms) != natoms(cell)
         throw(DimensionMismatch("number of magmoms must match number of atoms in cell!"))
     end
     return Cell(Lattice(cell), cell.positions, MagneticAtom.(cell.atoms, magmoms))
 end
+append_magmoms(cell::MagneticCell, magmoms) =
+    throw(TypeError(:append_magmoms, "append_magmoms($cell, $magmoms)", Cell, MagneticCell))
 
 """
     concat_with_file(dfs, files; cols=:setequal, copydfs=false)
