@@ -12,7 +12,7 @@ end
 
 function list_workdirs(root)
     tree = walk_workdirs(root)
-    return map(path, filter(!=(tree), dirs(tree)))
+    return map(WorkDir ∘ path, filter(!=(tree), dirs(tree)))
 end
 
 function list_files(tree::FileTree, pattern)
