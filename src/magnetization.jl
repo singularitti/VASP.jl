@@ -14,9 +14,9 @@ function (parser::MagnetizationParser)(workdir::WorkDir)
     poscar_file = joinpath(workdir.path, "POSCAR")
     outcar_file = joinpath(workdir.path, "OUTCAR")
     cell = PoscarParser()(poscar_file)
-    dataframe = parser(outcar_file)
-    magmoms = ByRow(sum)(eachrow(dataframe))
-    return add_magmoms(cell, magmoms)
+    df = parser(outcar_file)
+    df[!, :atom] .= cell.atoms
+    return df
 end
 
 """
